@@ -14,7 +14,8 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        //
+       $categories=Category::orderby('created_at','DESC')->get();
+       return view('categories.index',compact('categories'));
     }
 
     /**
@@ -65,7 +66,8 @@ class CategoriesController extends Controller
      */
     public function edit($id)
     {
-        //
+        $category=Category::findOrFail($id);
+        return view('categories.edit',compact('category'));
     }
 
     /**
@@ -77,7 +79,16 @@ class CategoriesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request,[
+            'name'=> 'required|min:2|max:50|unique:categories,name,'.$id
+           ]);
+           $category=Category::findOrFail($id);
+
+           $category->name=$request->name;
+           $category->save();
+
+           flash('Category Updated Successfully')->success();
+           return redirect()->route('categories.index');
     }
 
     /**
@@ -88,6 +99,9 @@ class CategoriesController extends Controller
      */
     public function destroy($id)
     {
-        //
+       $category=Category::findOrFail($id);
+       $category->delete();
+       flash('Category Deleted Successfully')->success();
+       return redirect()->route('categories.index');
     }
 }
